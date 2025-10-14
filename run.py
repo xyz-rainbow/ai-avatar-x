@@ -34,6 +34,27 @@ def run_flask():
 
 # Class to expose Python functions to JavaScript (simplified for now)
 class Api:
+    def open_control_window(self):
+        # Check if a control window already exists
+        control_exists = False
+        for w in webview.windows:
+            if w.title == 'Avatar Control':
+                control_exists = True
+                w.restore()
+                break
+        
+        if not control_exists:
+            webview.create_window(
+                'Avatar Control',
+                'http://127.0.0.1:5000/control',
+                width=400,
+                height=600,
+                resizable=True,
+                frameless=False,
+                on_top=False,
+                js_api=api
+            )
+
     def open_settings_window(self):
         print("Settings window not implemented in this basic version.")
 

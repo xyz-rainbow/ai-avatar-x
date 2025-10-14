@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Control</title>
+    <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+    <div class="settings-container">
+        <h1>Avatar Control</h1>
+        <div class="control-group">
+            <label>Expression:</label>
+            <table id="expression-table" class="expression-table">
+                <!-- Expressions will be populated by JavaScript -->
+            </table>
+        </div>
+        <div class="control-group">
+            <label for="subtitle-input">Subtitle:</label>
+            <input type="text" id="subtitle-input" placeholder="Enter subtitle...">
+        </div>
+        <button id="send-command-btn">Send Command</button>
+        <div id="response-message"></div>
+    </div>
+    <script src="control.js"></script>
+</body>
+</html>
