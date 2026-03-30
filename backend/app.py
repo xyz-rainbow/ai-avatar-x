@@ -139,26 +139,44 @@ def chat_handler():
                     msg_list = parsed if isinstance(parsed, list) else [parsed]
                     
                     final_sequence = []
-                    for item in msg_list[:5]:
+                    for item in msg_list:
                         subtitle = item.get("subtitle", "").strip()
-                        # Only add if there is actual speech
-                        if subtitle:
-                            exp = item.get("expression", "neutral")
-                            if exp not in allowed_expressions: exp = "neutral"
-                            
+                        if not subtitle: continue
+                        
+                        # If the AI sends a single long bubble, split it manually by sentences
+                        if len(msg_list) == 1 and len(subtitle) > 60:
+                            import re
+                            sentences = re.split(r'(?<=[.!?]) +', subtitle)
+                            for i, s in enumerate(sentences):
+                                if not s: continue
+                                final_sequence.append({
+                                    "expression": item.get("expression", "talking") if i > 0 else item.get("expression", "neutral"),
+                                    "subtitle": s,
+                                    "thought": item.get("thought", "") if i == 0 and config.get("thought_mode") != "none" else ""
+                                })
+                        else:
                             final_sequence.append({
-                                "expression": exp,
+                                "expression": item.get("expression", "neutral"),
                                 "subtitle": subtitle,
                                 "thought": item.get("thought", "") if config.get("thought_mode") != "none" else ""
                             })
                     
+                    # Final limit and safety check
+                    final_sequence = final_sequence[:5]
+                    
                     # Safety fallback if list ended up empty but we had a thought
-                    if not final_sequence and msg_list:
-                        first = msg_list[0]
+                    if not final_sequence:
+                        i18n = get_i18n_data()
+                        fallback_txt = i18n.get("ui", {}).get("fallback_reply", "Humm?")
+                        
+                        first_thought = ""
+                        if msg_list and isinstance(msg_list[0], dict):
+                            first_thought = msg_list[0].get("thought", "...")
+                        
                         final_sequence.append({
-                            "expression": first.get("expression", "neutral"),
-                            "subtitle": "...", 
-                            "thought": first.get("thought", "...")
+                            "expression": "curious",
+                            "subtitle": fallback_txt, 
+                            "thought": first_thought
                         })
 
                     return jsonify(final_sequence)

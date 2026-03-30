@@ -25,7 +25,8 @@
       "save_btn": "Aplicar Cambios",
       "chat_placeholder": "Habla con Makima...",
       "thought_header": "PENSAMIENTO INTERNO",
-      "lang_label": "Idioma:"
+      "lang_label": "Idioma:",
+      "fallback_reply": "Humm?"
     },
     "sample_subtitles": ["Hmm...", "¿Qué debería hacer ahora?", "Tengo un poco de hambre.", "Esto es interesante.", "..."],
     "emotional_events": [["¿Estás ahí?", "curious"], ["¡Tengo una idea!", "idea"]],
@@ -60,7 +61,8 @@
       "save_btn": "Apply Changes",
       "chat_placeholder": "Talk to Makima...",
       "thought_header": "INTERNAL THOUGHT",
-      "lang_label": "Language:"
+      "lang_label": "Language:",
+      "fallback_reply": "Humm?"
     },
     "sample_subtitles": ["Hmm...", "What should I do now?", "I'm a bit hungry.", "This is interesting.", "..."],
     "emotional_events": [["Are you there?", "curious"], ["I have an idea!", "idea"]],
