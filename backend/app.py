@@ -130,27 +130,40 @@ def chat_handler():
             if resp.status_code == 200:
                 data = resp.json()
                 raw_response = data.get("response", "").strip()
-                
-                # Si 'response' está vacío, intentar obtenerlo de 'thinking' (Ollama v0.5+)
-                if not raw_response:
-                    raw_response = data.get("thinking", "").strip()
+                if not raw_response: raw_response = data.get("thinking", "").strip()
                 
                 print(f"[OLLAMA RESPONSE] {raw_response}")
                 
                 try:
                     parsed = json.loads(raw_response)
-                    exp = parsed.get("expression", "neutral")
-                    if exp not in allowed_expressions: exp = "neutral"
+                    msg_list = parsed if isinstance(parsed, list) else [parsed]
                     
-                    res_obj = {
-                        "expression": exp,
-                        "subtitle": parsed.get("subtitle", "..."),
-                        "thought": parsed.get("thought", "") if config.get("thought_mode") != "none" else ""
-                    }
-                    return jsonify([res_obj])
+                    final_sequence = []
+                    for item in msg_list[:5]:
+                        subtitle = item.get("subtitle", "").strip()
+                        # Only add if there is actual speech
+                        if subtitle:
+                            exp = item.get("expression", "neutral")
+                            if exp not in allowed_expressions: exp = "neutral"
+                            
+                            final_sequence.append({
+                                "expression": exp,
+                                "subtitle": subtitle,
+                                "thought": item.get("thought", "") if config.get("thought_mode") != "none" else ""
+                            })
+                    
+                    # Safety fallback if list ended up empty but we had a thought
+                    if not final_sequence and msg_list:
+                        first = msg_list[0]
+                        final_sequence.append({
+                            "expression": first.get("expression", "neutral"),
+                            "subtitle": "...", 
+                            "thought": first.get("thought", "...")
+                        })
+
+                    return jsonify(final_sequence)
                 except Exception as e:
-                    # Si no es JSON válido, devolver como texto plano con expresión neutral
-                    print(f"[PARSE ERROR] {e} - Devolviendo como texto plano.")
+                    print(f"[PARSE ERROR] {e}")
                     return jsonify([{"expression": "talking", "subtitle": raw_response, "thought": ""}])
             else:
                 print(f"[OLLAMA ERROR] HTTP {resp.status_code}: {resp.text}")

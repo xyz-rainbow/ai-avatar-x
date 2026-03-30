@@ -76,6 +76,11 @@ class Api:
         # Se implementará en futuras versiones
         print("[INFO] Ventana de configuración solicitada.")
 
+    def open_inspector(self):
+        """Abre las herramientas de desarrollador."""
+        if webview.windows:
+            webview.windows[0].show_devtools()
+
     def minimize_avatar_window(self):
         """Minimiza la ventana principal del avatar."""
         if webview.windows:
@@ -117,8 +122,8 @@ if __name__ == '__main__':
         js_api=api
     )
 
-    # Iniciar el bucle de eventos de webview con modo debug habilitado
-    webview.start(debug=True)
+    # Iniciar el bucle de eventos de webview
+    webview.start()
 
     # Restaurar stdout/stderr al cerrar
     sys.stdout = sys_stdout

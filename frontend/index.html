@@ -73,6 +73,14 @@
 
                 <div class="tab-content" id="anim-tab">
                     <div class="form-group">
+                        <label data-i18n="perf_mode_label">Calidad de efectos:</label>
+                        <select id="performance-mode">
+                            <option value="low">Low (Battery Saver)</option>
+                            <option value="medium">Medium (Balanced)</option>
+                            <option value="high">High (Maximum Style)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label data-i18n="transition_style_label">Estilo de transición:</label>
                         <select id="transition-style">
                             <option value="crossout" data-i18n="style_crossout">Crossout</option>
@@ -94,6 +102,9 @@
                     <div class="form-group">
                         <label data-i18n="system_prompt_label">System Prompt:</label>
                         <textarea id="system-prompt" rows="5"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button id="open-debug-tools" class="btn-secondary" style="width:100%; margin-top:10px; padding:10px; border-radius:12px; background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2); cursor:pointer;">Open Web Inspector</button>
                     </div>
                 </div>
 

@@ -1,7 +1,7 @@
 {
   "app_name": "Gemini Avatar",
   "version": "1.2.0",
-  "language": "es",
+  "language": "en",
   "port": 5000,
   "host": "127.0.0.1",
   "inactivity_delay": 7,
@@ -9,11 +9,12 @@
   "theme": "one-ui-glass",
   "author": "XYZ Rainbow Technology",
   "ollama_enabled": true,
-  "ollama_url": "http://localhost:11434/api/generate",
+  "ollama_url": "http://127.0.0.1:11434/api/generate",
   "ollama_model": "qwen3.5:0.8b",
   "ollama_keep_alive": "3m",
-  "system_prompt": "Eres Makima, una asistente virtual inteligente. Responde de forma muy breve. Responde SOLO con un objeto JSON valido con dos claves: 'expression' (que debe ser una de: neutral, orgullosa, angry, annoyed, nervous, sad, sleepy, happy, thinking, talking, wink, idea, idea2, curious, excited) y 'subtitle' (tu respuesta textual corta). No a\u00f1adas nada m\u00e1s fuera del JSON.",
+  "system_prompt": "You are Makima. Act as an intelligent and authoritative virtual assistant. ALWAYS respond in the SAME LANGUAGE the user uses. ALWAYS respond with a JSON ARRAY (1-5 fragments). Each object is a speech bubble. STRICT structure: 'thought' (your internal reasoning), 'expression' (emoción) and 'subtitle' (WHAT YOU ACTUALLY SAY). The 'subtitle' MUST NOT be empty; it is your spoken dialogue. Do not add text outside the JSON.",
   "transition_style": "fade",
   "transition_duration": 0.5,
-  "thought_mode": "creative"
+  "thought_mode": "creative",
+  "performance_mode": "medium"
 }

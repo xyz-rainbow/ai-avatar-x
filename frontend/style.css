@@ -14,15 +14,16 @@
 }
 
 html, body {
-    margin: 0; padding: 0;
+    margin: 0; padding: 1px; /* 1px padding prevents squared edges on focus loss */
     background-color: transparent !important;
     width: 100%; height: 100%;
     font-family: var(--font-family);
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 #main-container {
-    width: 100%; height: 100%;
+    width: calc(100% - 2px); height: calc(100% - 2px);
     position: relative;
     background: #000;
     border: 3px solid #000000;
@@ -32,14 +33,13 @@ html, body {
     /* Viñeta reforzada */
     box-shadow: inset 0 0 80px rgba(0, 0, 0, 1), 
                 inset 0 0 40px rgba(0, 0, 0, 1);
-    animation: vhs-jitter 0.15s infinite alternate;
 }
 
-/* --- Ventana de Pensamientos (Cian Superior) --- */
+/* --- Ventana de Pensamientos (Smoother) --- */
 #thought-box {
     position: absolute;
     top: 20px; left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateY(-10px);
     width: 80%; max-width: 500px;
     background: rgba(0, 20, 20, 0.7);
     backdrop-filter: blur(15px);
@@ -50,13 +50,15 @@ html, body {
     z-index: 150;
     color: cyan;
     box-shadow: 0 8px 32px rgba(0, 255, 255, 0.1);
-    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0;
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
+#thought-box:not(.hidden) { top: 20px; transform: translateX(-50%) translateY(0); opacity: 1; }
 #thought-box.hidden { top: -100px; opacity: 0; }
 .thought-header { font-size: 10px; font-weight: 800; letter-spacing: 2px; margin-bottom: 5px; opacity: 0.7; }
 #thought-text { font-size: 14px; line-height: 1.4; font-style: italic; }
 
-/* --- Controles de Ventana (Oscuros) --- */
+/* --- Controles de Ventana --- */
 #window-controls {
     position: absolute; top: 15px; right: 15px;
     display: flex; gap: 8px; z-index: 300;
@@ -65,54 +67,24 @@ html, body {
     background: rgba(0, 0, 0, 0.6); 
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.05); 
-    color: rgba(255, 255, 255, 0.5); /* Iconos tenues */
+    color: rgba(255, 255, 255, 0.5); 
     width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
-    transition: 0.2s; display: flex; align-items: center; justify-content: center;
-    font-weight: bold;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex; align-items: center; justify-content: center;
 }
-#window-controls button:hover { 
-    background: rgba(255, 255, 255, 0.1); 
-    color: white;
-    transform: scale(1.1); 
-}
+#window-controls button:hover { background: rgba(255, 255, 255, 0.1); color: white; transform: scale(1.1); }
 
-/* --- Panel de Configuración --- */
-#settings-modal {
-    position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(0, 0, 0, 0.85);
-    z-index: 400; display: flex; justify-content: center; align-items: center;
-}
-#settings-modal.hidden { display: none; }
-
-.settings-content {
-    background: rgba(15, 15, 15, 0.95);
-    backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 28px; width: 90%; max-width: 380px; color: white;
-    box-shadow: 0 20px 60px rgba(0,0,0,1); overflow: hidden;
-}
-
-/* --- Motor de Video Crossout --- */
-#video-container { 
-    width: 100%; height: 100%; 
-    position: absolute; top: 0; left: 0; z-index: 10; 
-    filter: brightness(0.92) contrast(1.05); /* Video 8% más oscuro y más contraste */
-}
-.avatar-video {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    object-fit: cover;
-    opacity: 0; transition: opacity 0.5s ease-in-out;
-}
-.avatar-video.active { opacity: 1; z-index: 20; }
-
-/* --- Subtítulos y Chat --- */
+/* --- Subtítulos (Smoother) --- */
 #subtitle-box {
-    position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%);
+    position: absolute; bottom: 100px; left: 50%; 
+    transform: translateX(-50%) translateY(10px);
     background: rgba(0,0,0,0.8); backdrop-filter: blur(15px);
     color: white; padding: 12px 24px; border-radius: 20px;
     z-index: 100; border: 1px solid var(--glass-border); opacity: 0;
-    transition: 0.4s; pointer-events: none;
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
 }
-#subtitle-box.show { opacity: 1; }
+#subtitle-box.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 #chat-container {
     position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%);
@@ -124,28 +96,49 @@ html, body {
     backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 24px; color: white; font-size: 13.5px; outline: none;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
     box-sizing: border-box;
     text-align: center;
 }
 #chat-input:focus { border-color: cyan; background: rgba(0, 255, 255, 0.05); }
 
-/* --- Efecto VHS POTENCIADO (ENCIMA DE TODO PERO TRANSPARENTE AL CLIC) --- */
+/* --- Rest of elements --- */
+#settings-modal {
+    position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 400; display: flex; justify-content: center; align-items: center;
+}
+#settings-modal.hidden { display: none; }
+.settings-content {
+    background: rgba(15, 15, 15, 0.95);
+    backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 28px; width: 90%; max-width: 380px; color: white;
+    box-shadow: 0 20px 60px rgba(0,0,0,1); overflow: hidden;
+}
+
+#video-container { 
+    width: 100%; height: 100%; 
+    position: absolute; top: 0; left: 0; z-index: 10; 
+    filter: brightness(0.92) contrast(1.05);
+}
+.avatar-video {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    object-fit: cover; opacity: 0; transition: opacity 0.5s ease-in-out;
+}
+.avatar-video.active { opacity: 1; z-index: 20; }
+
 .scanline {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0.25) 1px, rgba(0,0,0,0) 2px);
-    z-index: 500; /* Por encima de todo */
-    pointer-events: none; /* No bloquea clics */
+    z-index: 500; pointer-events: none;
 }
 .noise {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48ZmlsdGVyIGlkPSJmIj48ZmVDb2xvck1hdHJpeCB0eXBlPSJtYXRyaXgiIHZhbHVlPSIxIDAgMCAwIDAgMCAxIDAgMCAwIDAgMCAxIDAgMCAwIDAgMCAxIDAgMCIvPjxmZUNvbXBvbmVudCBpbj0iU291cmNlR3JhcGhpYyIgZnVuY1k9InNpbiIgc2xvY2tlPSIxIiBzdGFpcnM9IjEiLz48ZmVDb21wb25lbnQgaW49IlNvdXJjZUdyYXBoaWMiIGZ1bmNYPSJjb3MiIHNsb2NrZT0iMSIgc3RhaXJzPSIxIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iYmxhY2siLz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ3aGl0ZSIgZmlsdGVyPSJ1cmwoI2YpIiBvcGFjaXR5PSIwLjEiLz48L3N2Zz4=');
-    opacity: 0.15; z-index: 450; 
-    pointer-events: none; /* No bloquea clics */
+    opacity: 0.15; z-index: 450; pointer-events: none;
     animation: noise-animation 0.5s infinite step-end;
 }
 
-/* --- Tabs y Forms --- */
 .settings-tabs { display: flex; background: rgba(0,0,0,0.5); }
 .tab-btn { flex: 1; padding: 12px; background: none; border: none; color: #666; cursor: pointer; font-weight: 600; }
 .tab-btn.active { color: cyan; border-bottom: 2px solid cyan; background: rgba(0,255,255,0.05); }

@@ -1,0 +1,13 @@
+{
+  "name": "gemini-avatar",
+  "version": "1.2.0",
+  "description": "Interactive AI-powered desktop avatar Makima.",
+  "main": "run.py",
+  "scripts": {
+    "install": "bash install.sh",
+    "start": "python3 run.py",
+    "dev": "python3 run.py --debug"
+  },
+  "author": "XYZ Rainbow Technology",
+  "license": "MIT"
+}
