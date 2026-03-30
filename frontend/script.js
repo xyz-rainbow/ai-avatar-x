@@ -17,6 +17,7 @@ const CONFIG_API_URL = 'http://127.0.0.1:5000/api/config';
 const I18N_API_URL = 'http://127.0.0.1:5000/api/i18n';
 
 let isPlayingSequence = false;
+let sequenceQueue = [];
 let appConfig = { language: 'en', transition_style: 'crossout', transition_duration: 0.5, performance_mode: 'medium' };
 let currentVideoElement = videoFG;
 let allTranslations = {};
@@ -44,6 +45,100 @@ const expressionVideos = {
 };
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+// --- Queue Worker ---
+async function processQueue() {
+    if (isPlayingSequence || sequenceQueue.length === 0) return;
+    
+    isPlayingSequence = true;
+    const sequence = sequenceQueue.shift();
+    
+    for (const item of sequence) {
+        await updateVisuals(item.expression, item.subtitle, item.thought);
+        // Reading time: variable based on length but strictly capped at 3 seconds
+        const readingTime = Math.min(3000, item.subtitle.length * 50 + (item.thought ? 1000 : 0));
+        await sleep(readingTime);
+    }
+    
+    isPlayingSequence = false;
+    
+    // If nothing else in queue, return to neutral
+    if (sequenceQueue.length === 0) {
+        await updateVisuals('neutral', '', '');
+    } else {
+        processQueue(); // Keep processing
+    }
+}
+
+// --- Visuals ---
+async function updateVisuals(expression, subtitle, thought = "") {
+    console.log("[DEBUG] Visuals:", {expression, subtitle, thought});
+    if (thought && thought !== "") {
+        thoughtText.textContent = thought;
+        thoughtBox.classList.remove('hidden');
+        thoughtBox.style.boxShadow = "0 0 30px rgba(0, 255, 255, 0.5)";
+        setTimeout(() => thoughtBox.style.boxShadow = "0 8px 32px rgba(0, 255, 255, 0.15)", 500);
+    } else {
+        thoughtBox.classList.add('hidden');
+    }
+
+    if (subtitle) {
+        subtitleText.textContent = subtitle;
+        subtitleBox.classList.add('show');
+    } else {
+        subtitleBox.classList.remove('show');
+    }
+
+    const newSrc = expressionVideos[expression] || expressionVideos["neutral"];
+    const nextVideoElement = (currentVideoElement === videoFG) ? videoBG : videoFG;
+
+    if (!currentVideoElement.src.includes(newSrc)) {
+        nextVideoElement.src = newSrc;
+        nextVideoElement.load();
+        const duration = appConfig.transition_duration || 0.5;
+        nextVideoElement.style.transition = `opacity ${duration}s ease-in-out`;
+        currentVideoElement.style.transition = `opacity ${duration}s ease-in-out`;
+        nextVideoElement.style.opacity = 1;
+        currentVideoElement.style.opacity = 0;
+        await sleep(duration * 1000);
+        currentVideoElement.classList.remove('active');
+        nextVideoElement.classList.add('active');
+        currentVideoElement = nextVideoElement;
+    }
+}
+
+// --- Chat Logic ---
+if (chatInput) {
+    chatInput.addEventListener('keypress', async (e) => {
+        if (e.key === 'Enter' && chatInput.value.trim() !== '') {
+            const message = chatInput.value.trim();
+            chatInput.value = '';
+            // Only disable while the HTTP request is pending
+            chatInput.disabled = true;
+            chatInput.placeholder = "...";
+
+            try {
+                const response = await fetch(CHAT_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message }),
+                });
+                const sequence = await response.json();
+                
+                // Add to queue and trigger worker
+                sequenceQueue.push(sequence);
+                processQueue();
+
+            } catch (e) {
+                console.error("Chat error:", e);
+            } finally {
+                chatInput.disabled = false;
+                chatInput.placeholder = allTranslations[appConfig.language]?.ui?.chat_placeholder || "Talk to Makima...";
+                chatInput.focus();
+            }
+        }
+    });
+}
 
 // --- Performance & Styles ---
 function applyPerformanceMode() {
@@ -105,54 +200,6 @@ function applyI18n() {
     if (chatInput && dict.chat_placeholder) chatInput.placeholder = dict.chat_placeholder;
 }
 
-// --- Visuals ---
-async function updateVisuals(expression, subtitle, thought = "") {
-    if (thought && thought !== "") {
-        thoughtText.textContent = thought;
-        thoughtBox.classList.remove('hidden');
-        thoughtBox.style.boxShadow = "0 0 30px rgba(0, 255, 255, 0.5)";
-        setTimeout(() => thoughtBox.style.boxShadow = "0 8px 32px rgba(0, 255, 255, 0.15)", 500);
-    } else {
-        thoughtBox.classList.add('hidden');
-    }
-
-    if (subtitle) {
-        subtitleText.textContent = subtitle;
-        subtitleBox.classList.add('show');
-    } else {
-        subtitleBox.classList.remove('show');
-    }
-
-    const newSrc = expressionVideos[expression] || expressionVideos["neutral"];
-    const nextVideoElement = (currentVideoElement === videoFG) ? videoBG : videoFG;
-
-    if (!currentVideoElement.src.includes(newSrc)) {
-        nextVideoElement.src = newSrc;
-        nextVideoElement.load();
-        const duration = appConfig.transition_duration || 0.5;
-        nextVideoElement.style.transition = `opacity ${duration}s ease-in-out`;
-        currentVideoElement.style.transition = `opacity ${duration}s ease-in-out`;
-        nextVideoElement.style.opacity = 1;
-        currentVideoElement.style.opacity = 0;
-        await sleep(duration * 1000);
-        currentVideoElement.classList.remove('active');
-        nextVideoElement.classList.add('active');
-        currentVideoElement = nextVideoElement;
-    }
-}
-
-async function playSequence(sequence) {
-    isPlayingSequence = true;
-    for (const item of sequence) {
-        await updateVisuals(item.expression, item.subtitle, item.thought);
-        // Base time + variable time per char + 3 extra seconds for easy reading
-        const displayTime = Math.max(5000, item.subtitle.length * 60 + (item.thought ? 3000 : 0) + 3000);
-        await sleep(displayTime);
-    }
-    isPlayingSequence = false;
-    await updateVisuals('neutral', '', '');
-}
-
 async function pollState() {
     if (isPlayingSequence || !settingsModal.classList.contains('hidden')) return;
     try {
@@ -162,29 +209,6 @@ async function pollState() {
     } catch (e) {}
 }
 
-// --- Chat ---
-if (chatInput) {
-    chatInput.addEventListener('keypress', async (e) => {
-        if (e.key === 'Enter' && chatInput.value.trim() !== '') {
-            const message = chatInput.value.trim();
-            chatInput.value = '';
-            chatInput.disabled = true;
-            try {
-                const response = await fetch(CHAT_API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message }),
-                });
-                const sequence = await response.json();
-                await playSequence(sequence);
-            } catch (e) {}
-            chatInput.disabled = false;
-            chatInput.focus();
-        }
-    });
-}
-
-// --- Settings ---
 async function loadConfig() {
     try {
         const res = await fetch(CONFIG_API_URL);
@@ -196,10 +220,8 @@ async function loadConfig() {
         document.getElementById('system-prompt').value = appConfig.system_prompt || '';
         document.getElementById('thought-mode').value = appConfig.thought_mode || 'short';
         document.getElementById('performance-mode').value = appConfig.performance_mode || 'medium';
-        
         applyI18n();
         applyPerformanceMode();
-
         const mRes = await fetch('/api/models');
         const models = await mRes.json();
         const sel = document.getElementById('ollama-model-select');
@@ -240,7 +262,6 @@ document.getElementById('save-settings').addEventListener('click', async () => {
     settingsModal.classList.add('hidden');
 });
 
-// Stepper
 document.getElementById('trans-dec').addEventListener('click', () => {
     const i = document.getElementById('transition-duration');
     i.value = Math.max(0, (parseFloat(i.value) - 0.1).toFixed(1));
@@ -250,7 +271,6 @@ document.getElementById('trans-inc').addEventListener('click', () => {
     i.value = (parseFloat(i.value) + 0.1).toFixed(1);
 });
 
-// Tabs
 document.querySelectorAll('.tab-btn').forEach(b => {
     b.addEventListener('click', (e) => {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -266,7 +286,6 @@ document.getElementById('open-debug-tools').addEventListener('click', () => {
 document.getElementById('minimize-avatar-window').addEventListener('click', () => window.pywebview.api.minimize_avatar_window());
 document.getElementById('close-avatar-window').addEventListener('click', () => window.pywebview.api.close_avatar_window());
 
-// --- Start ---
 fetchI18n().then(() => {
     loadConfig();
     setInterval(pollState, 2000);

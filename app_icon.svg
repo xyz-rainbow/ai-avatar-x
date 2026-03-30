@@ -1,0 +1,39 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Glass/Dark Circle -->
+  <rect width="512" height="512" rx="128" fill="#0a0a0a"/>
+  <circle cx="256" cy="256" r="240" fill="#111111" stroke="#333" stroke-width="4"/>
+  
+  <!-- Hair Base -->
+  <path d="M120 400C120 200 180 80 256 80C332 80 392 200 392 400" fill="#d65d7a" opacity="0.8"/>
+  
+  <!-- Face/Chin -->
+  <path d="M180 250Q256 420 332 250" fill="#f9d5cc"/>
+  
+  <!-- Iconic Spiral Eyes -->
+  <g id="eyes">
+    <!-- Left Eye -->
+    <circle cx="210" cy="260" r="25" fill="#f4d03f"/>
+    <circle cx="210" cy="260" r="18" fill="none" stroke="#7d3c00" stroke-width="2"/>
+    <circle cx="210" cy="260" r="12" fill="none" stroke="#7d3c00" stroke-width="2"/>
+    <circle cx="210" cy="260" r="6" fill="#7d3c00"/>
+    
+    <!-- Right Eye -->
+    <circle cx="302" cy="260" r="25" fill="#f4d03f"/>
+    <circle cx="302" cy="260" r="18" fill="none" stroke="#7d3c00" stroke-width="2"/>
+    <circle cx="302" cy="260" r="12" fill="none" stroke="#7d3c00" stroke-width="2"/>
+    <circle cx="302" cy="260" r="6" fill="#7d3c00"/>
+  </g>
+  
+  <!-- Hair Strands (Front) -->
+  <path d="M256 80Q200 100 160 280" fill="none" stroke="#d65d7a" stroke-width="12" stroke-linecap="round"/>
+  <path d="M256 80Q312 100 352 280" fill="none" stroke="#d65d7a" stroke-width="12" stroke-linecap="round"/>
+
+  <!-- Suit/Tie -->
+  <path d="M200 450L256 512L312 450V400H200V450Z" fill="white"/>
+  <path d="M240 400L256 500L272 400H240Z" fill="black"/>
+  
+  <!-- Glow Effect -->
+  <circle cx="256" cy="256" r="240" fill="none" stroke="cyan" stroke-width="2" opacity="0.3">
+    <animate attributeName="opacity" values="0.1;0.4;0.1" dur="4s" repeatCount="indefinite" />
+  </circle>
+</svg>
