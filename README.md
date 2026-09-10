@@ -6,12 +6,12 @@
 <h3 align="center">Your Dominant AI Companion // Tu Compañera IA Dominante // 你的主宰AI伴侣</h3>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.2.0-blue?style=flat-square">
-  <img src="https://img.shields.io/badge/python-3.8+-blue?style=flat-square&logo=python">
-  <img src="https://img.shields.io/badge/flask-3.0.0-green?style=flat-square&logo=flask">
-  <img src="https://img.shields.io/badge/Ollama-Local%20AI-orange?style=flat-square">
-  <img src="https://img.shields.io/badge/pywebview-5.0.5-blue?style=flat-square">
-  <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square">
+  <img src="https://img.shields.io/badge/version-1.2.0-00f0ff?style=flat-square" alt="version">
+  <img src="https://img.shields.io/badge/python-3.8+-00f0ff?style=flat-square&logo=python&logoColor=white" alt="python">
+  <img src="https://img.shields.io/badge/flask-3.0.0-ff2bd6?style=flat-square&logo=flask&logoColor=white" alt="flask">
+  <img src="https://img.shields.io/badge/Ollama-Local%20AI-c8ff00?style=flat-square" alt="ollama">
+  <img src="https://img.shields.io/badge/pywebview-5.0.5-00f0ff?style=flat-square" alt="pywebview">
+  <img src="https://img.shields.io/badge/license-MIT-ff2bd6?style=flat-square" alt="license">
 </p>
 
 <p align="center">
