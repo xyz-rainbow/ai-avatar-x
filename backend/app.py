@@ -75,9 +75,27 @@ def get_state(): return jsonify(global_state)
 @app.route('/api/config', methods=['GET'])
 def get_config(): return jsonify(config)
 
+def get_i18n_data():
+    lang = config.get("language", "en")
+    try:
+        if os.path.exists(I18N_FILE):
+            with open(I18N_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                return data.get(lang, data.get("en", {}))
+    except Exception as e:
+        print(f"[ERROR I18N] {e}")
+    return {}
+
 @app.route('/api/i18n')
 def get_i18n_full():
-    return jsonify(translations)
+    try:
+        if os.path.exists(I18N_FILE):
+            with open(I18N_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                return jsonify(data)
+    except Exception as e:
+        print(f"[ERROR I18N FULL] {e}")
+    return jsonify({})
 
 @app.route('/api/config', methods=['POST'])
 def save_config():
@@ -185,6 +203,7 @@ def chat_handler():
                     return jsonify([{"expression": "talking", "subtitle": raw_response, "thought": ""}])
             else:
                 print(f"[OLLAMA ERROR] HTTP {resp.status_code}: {resp.text}")
+                return jsonify([{"expression": "sad", "subtitle": "Fallo de conexión.", "thought": f"HTTP {resp.status_code}"}])
         except Exception as e:
             error_msg = f"Error: {type(e).__name__} - {str(e)}"
             print(f"[OLLAMA EXCEPTION] {error_msg}")
