@@ -158,9 +158,18 @@ def chat_handler():
                     
                     final_sequence = []
                     for item in msg_list:
-                        subtitle = item.get("subtitle", "").strip()
+                        if not isinstance(item, dict):
+                            continue
+                        subtitle = item.get("subtitle", "")
+                        if not isinstance(subtitle, str):
+                            subtitle = str(subtitle)
+                        subtitle = subtitle.strip()
                         if not subtitle: continue
                         
+                        base_expr = item.get("expression", "neutral")
+                        if base_expr not in allowed_expressions:
+                            base_expr = "neutral"
+
                         # If the AI sends a single long bubble, split it manually by sentences
                         if len(msg_list) == 1 and len(subtitle) > 60:
                             import re
@@ -168,13 +177,13 @@ def chat_handler():
                             for i, s in enumerate(sentences):
                                 if not s: continue
                                 final_sequence.append({
-                                    "expression": item.get("expression", "talking") if i > 0 else item.get("expression", "neutral"),
+                                    "expression": "talking" if i > 0 else base_expr,
                                     "subtitle": s,
                                     "thought": item.get("thought", "") if i == 0 and config.get("thought_mode") != "none" else ""
                                 })
                         else:
                             final_sequence.append({
-                                "expression": item.get("expression", "neutral"),
+                                "expression": base_expr,
                                 "subtitle": subtitle,
                                 "thought": item.get("thought", "") if config.get("thought_mode") != "none" else ""
                             })
@@ -198,16 +207,30 @@ def chat_handler():
                         })
 
                     return jsonify(final_sequence)
+                except json.JSONDecodeError as e:
+                    print(f"[JSON PARSE ERROR] {e}")
+                    # Validate that raw_response isn't extremely long to avoid UI break
+                    safe_subtitle = raw_response[:200] + "..." if len(raw_response) > 200 else raw_response
+                    return jsonify([{"expression": "talking", "subtitle": safe_subtitle, "thought": ""}])
                 except Exception as e:
                     print(f"[PARSE ERROR] {e}")
-                    return jsonify([{"expression": "talking", "subtitle": raw_response, "thought": ""}])
+                    return jsonify([{"expression": "talking", "subtitle": "Error de parseo.", "thought": ""}])
             else:
                 print(f"[OLLAMA ERROR] HTTP {resp.status_code}: {resp.text}")
-                return jsonify([{"expression": "sad", "subtitle": "Fallo de conexión.", "thought": f"HTTP {resp.status_code}"}])
+                return jsonify([{"expression": "sad", "subtitle": "Error del servidor.", "thought": f"HTTP {resp.status_code}"}])
+        except requests.exceptions.Timeout:
+            print("[OLLAMA EXCEPTION] Timeout")
+            return jsonify([{"expression": "sad", "subtitle": "Tiempo de espera agotado.", "thought": "Timeout"}])
+        except requests.exceptions.ConnectionError:
+            print("[OLLAMA EXCEPTION] Connection Error")
+            return jsonify([{"expression": "sad", "subtitle": "Error de conexión con Ollama.", "thought": "Connection Error"}])
+        except requests.exceptions.RequestException as e:
+            print(f"[OLLAMA EXCEPTION] Request Error: {e}")
+            return jsonify([{"expression": "sad", "subtitle": "Error de red.", "thought": "Request Error"}])
         except Exception as e:
             error_msg = f"Error: {type(e).__name__} - {str(e)}"
             print(f"[OLLAMA EXCEPTION] {error_msg}")
-            return jsonify([{"expression": "sad", "subtitle": "Fallo de conexión.", "thought": error_msg}])
+            return jsonify([{"expression": "sad", "subtitle": "Error inesperado.", "thought": error_msg}])
 
     return jsonify([{"expression": "sad", "subtitle": "Ollama desactivado.", "thought": "Actívalo en config.json"}])
 
