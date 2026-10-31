@@ -177,4 +177,75 @@ def test_chat_error(client, requests_mock):
     data = json.loads(response.data)
     assert len(data) == 1
     assert data[0]["expression"] == "sad"
-    assert data[0]["subtitle"] == "Fallo de conexión."
+    assert data[0]["subtitle"] == "Error del servidor."
+
+
+def test_chat_invalid_expression(client, requests_mock):
+    mock_url = "http://localhost:11434/api/generate"
+    backend_app.config["ollama_enabled"] = True
+    backend_app.config["ollama_url"] = mock_url
+
+    mock_ollama_response = {
+        "response": json.dumps([
+            {"expression": "non_existent_expression", "subtitle": "Hello there!", "thought": "I should greet them."}
+        ])
+    }
+    requests_mock.post(mock_url, json=mock_ollama_response, status_code=200)
+
+    response = client.post('/api/chat', json={"message": "hi"})
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert len(data) == 1
+    # Invalid expression should fallback to neutral
+    assert data[0]["expression"] == "neutral"
+    assert data[0]["subtitle"] == "Hello there!"
+
+
+def test_chat_timeout(client, requests_mock):
+    import requests
+    mock_url = "http://localhost:11434/api/generate"
+    backend_app.config["ollama_enabled"] = True
+    backend_app.config["ollama_url"] = mock_url
+
+    requests_mock.post(mock_url, exc=requests.exceptions.Timeout)
+
+    response = client.post('/api/chat', json={"message": "hi"})
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert len(data) == 1
+    assert data[0]["expression"] == "sad"
+    assert data[0]["subtitle"] == "Tiempo de espera agotado."
+
+
+def test_chat_connection_error(client, requests_mock):
+    import requests
+    mock_url = "http://localhost:11434/api/generate"
+    backend_app.config["ollama_enabled"] = True
+    backend_app.config["ollama_url"] = mock_url
+
+    requests_mock.post(mock_url, exc=requests.exceptions.ConnectionError)
+
+    response = client.post('/api/chat', json={"message": "hi"})
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert len(data) == 1
+    assert data[0]["expression"] == "sad"
+    assert data[0]["subtitle"] == "Error de conexión con Ollama."
+
+
+def test_chat_json_decode_error(client, requests_mock):
+    mock_url = "http://localhost:11434/api/generate"
+    backend_app.config["ollama_enabled"] = True
+    backend_app.config["ollama_url"] = mock_url
+
+    mock_ollama_response = {
+        "response": "This is not valid json, {just text"
+    }
+    requests_mock.post(mock_url, json=mock_ollama_response, status_code=200)
+
+    response = client.post('/api/chat', json={"message": "hi"})
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert len(data) == 1
+    assert data[0]["expression"] == "talking"
+    assert data[0]["subtitle"] == "This is not valid json, {just text"
