@@ -69,8 +69,40 @@ idle_cycle_expressions = ["idle1", "idle2", "idle3", "idle4"]
 @app.route('/')
 def index(): return send_from_directory(app.static_folder, 'index.html')
 
+@app.route('/control')
+def control(): return send_from_directory(app.static_folder, 'control.html')
+
+@app.route('/settings')
+def settings(): return send_from_directory(app.static_folder, 'settings.html')
+
 @app.route('/api/state')
 def get_state(): return jsonify(global_state)
+
+@app.route('/api/logs', methods=['GET'])
+def get_logs():
+    captured_output = app.config.get('CAPTURED_OUTPUT')
+    logs = ""
+    if captured_output:
+        logs = captured_output.get_last_lines(100)
+    elif os.path.exists("app.log"):
+        try:
+            with open("app.log", "r", encoding="utf-8") as f:
+                logs = "".join(f.readlines()[-100:])
+        except:
+            pass
+    return jsonify({"logs": logs})
+
+@app.route('/api/update_from_gui', methods=['POST'])
+def update_from_gui():
+    data = request.get_json()
+    if data:
+        global_state['expression'] = data.get('expression', global_state['expression'])
+        global_state['subtitle'] = data.get('subtitle', global_state['subtitle'])
+        global global_last_manual_command_time
+        import time
+        global_last_manual_command_time = time.time()
+        return jsonify({"success": True})
+    return jsonify({"success": False, "error": "No data provided"}), 400
 
 @app.route('/api/config', methods=['GET'])
 def get_config(): return jsonify(config)
