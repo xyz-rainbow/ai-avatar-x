@@ -249,3 +249,29 @@ def test_chat_json_decode_error(client, requests_mock):
     assert len(data) == 1
     assert data[0]["expression"] == "talking"
     assert data[0]["subtitle"] == "This is not valid json, {just text"
+
+def test_route_control(client):
+    response = client.get('/control')
+    assert response.status_code == 200
+    assert b"Avatar Control" in response.data
+
+def test_route_settings(client):
+    response = client.get('/settings')
+    assert response.status_code == 200
+    assert b"Avatar Logs" in response.data
+
+def test_api_update_from_gui(client):
+    data = {"expression": "happy", "subtitle": "Test from GUI"}
+    response = client.post('/api/update_from_gui', json=data)
+    assert response.status_code == 200
+    resp_data = json.loads(response.data)
+    assert resp_data["success"] == True
+
+    assert backend_app.global_state["expression"] == "happy"
+    assert backend_app.global_state["subtitle"] == "Test from GUI"
+
+def test_api_logs(client):
+    response = client.get('/api/logs')
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert "logs" in data
