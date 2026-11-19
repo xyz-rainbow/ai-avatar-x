@@ -98,9 +98,8 @@ def update_from_gui():
     if data:
         global_state['expression'] = data.get('expression', global_state['expression'])
         global_state['subtitle'] = data.get('subtitle', global_state['subtitle'])
-        global global_last_manual_command_time
-        import time
-        global_last_manual_command_time = time.time()
+        global last_manual_command_time
+        last_manual_command_time = time.time()
         return jsonify({"success": True})
     return jsonify({"success": False, "error": "No data provided"}), 400
 
