@@ -9,5 +9,5 @@
     "dev": "python3 run.py --debug"
   },
   "author": "XYZ Rainbow Technology",
-  "license": "MIT"
+  "license": "UNLICENSED"
 }

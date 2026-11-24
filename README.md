@@ -11,7 +11,7 @@
   <img src="https://img.shields.io/badge/flask-3.0.0-ff2bd6?style=flat-square&logo=flask&logoColor=white" alt="flask">
   <img src="https://img.shields.io/badge/Ollama-Local%20AI-c8ff00?style=flat-square" alt="ollama">
   <img src="https://img.shields.io/badge/pywebview-5.0.5-00f0ff?style=flat-square" alt="pywebview">
-  <img src="https://img.shields.io/badge/license-MIT-ff2bd6?style=flat-square" alt="license">
+  <img src="https://img.shields.io/badge/license-proprietary-red?style=flat-square" alt="license">
 </p>
 
 <p align="center">
@@ -241,3 +241,11 @@ PRs welcome! Check `structure.md` for project organization.
   <a href="https://github.com/xyz-rainbow/ai-avatar-x/issues">🐛 Issues</a> • 
   <a href="https://rainbowtechnology.xyz">🌐 Website</a>
 </p>
+
+## License
+
+Proprietary — all rights reserved. Copyright (c) 2026 Rainbow Technology (xyz-rainbow).
+
+The source may be viewed and evaluated in this repository. Copying, redistribution, sublicensing, published forks, derivative works, and any commercial or production use are prohibited without prior written permission. Issues and pull requests are welcome. A GitHub fork is allowed only to prepare pull requests to this repository.
+
+See [LICENSE](LICENSE) for the full terms, including the contribution assignment, and [CONTRIBUTING.md](CONTRIBUTING.md) if you want to send a change.
