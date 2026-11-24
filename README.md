@@ -11,7 +11,7 @@
   <img src="https://img.shields.io/badge/flask-3.0.0-ff2bd6?style=flat-square&logo=flask&logoColor=white" alt="flask">
   <img src="https://img.shields.io/badge/Ollama-Local%20AI-c8ff00?style=flat-square" alt="ollama">
   <img src="https://img.shields.io/badge/pywebview-5.0.5-00f0ff?style=flat-square" alt="pywebview">
-  <img src="https://img.shields.io/badge/license-proprietary-red?style=flat-square" alt="license">
+  <img src="https://img.shields.io/badge/license-Proprietary-red?style=flat-square" alt="License: Proprietary">
 </p>
 
 <p align="center">
