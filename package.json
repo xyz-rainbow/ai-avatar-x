@@ -1,5 +1,6 @@
 {
   "name": "gemini-avatar",
+  "private": true,
   "version": "1.2.0",
   "description": "Interactive AI-powered desktop avatar Makima.",
   "main": "run.py",
@@ -9,5 +10,5 @@
     "dev": "python3 run.py --debug"
   },
   "author": "XYZ Rainbow Technology",
-  "license": "UNLICENSED"
+  "license": "SEE LICENSE IN LICENSE"
 }
